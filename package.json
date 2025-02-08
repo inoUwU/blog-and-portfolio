@@ -9,10 +9,14 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
+		"@types/three": "^0.173.0",
 		"framer-motion": "^11.18.2",
 		"next": "15.1.6",
 		"react": "^19.0.0",
-		"react-dom": "^19.0.0"
+		"react-dom": "^19.0.0",
+		"@react-three/drei": "^10.0.0-rc.1",
+		"@react-three/fiber": "^9.0.0-alpha.8",
+		"three": "^0.173.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",

@@ -3,6 +3,12 @@ import GithubIcon from "../../public/github.svg";
 import XIcon from "../../public/x.svg";
 import Image from "next/image";
 import Link from "next/link";
+import { Itim } from "next/font/google";
+
+const ItimFont = Itim({
+	weight: "400",
+	subsets: ["latin"],
+});
 
 export default function Hero() {
 	return (
@@ -41,8 +47,12 @@ export default function Hero() {
 						<Image src={XIcon} alt="X Icon" />
 					</a>
 				</p>
-				<p className="text-center font-bold">Hi There! I'm fract.</p>
-				<p className="text-center">This site is my blog</p>
+				<p className={`text-center ${ItimFont.className}`}>
+					Hi There! I'm fract.
+				</p>
+				<p className={`text-center ${ItimFont.className}`}>
+					This site is my blog
+				</p>
 			</main>
 		</div>
 	);

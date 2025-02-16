@@ -1,72 +1,111 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Center, Text3D, Text } from "@react-three/drei";
-import type { Mesh } from "three";
+import { Canvas } from "@react-three/fiber";
+import {
+	Center,
+	Text3D,
+	OrbitControls,
+	Environment,
+	Grid,
+	Line,
+} from "@react-three/drei";
 import font from "../../public/font/Inter_Bold.json";
 
-type position = [number, number, number];
-
-interface BoxProps {
-	position: position;
-}
-
-function Box(props: BoxProps): React.JSX.Element {
-	// This reference will give us direct access to the mesh
-	const meshRef = useRef<Mesh>(null);
-	// Set up state for the hovered and active state
-	const [hovered, setHover] = useState(false);
-	const [active, setActive] = useState(false);
-	// Subscribe this component to the render-loop, rotate the mesh every frame
-
-	useFrame((state, delta) => {
-		if (meshRef.current) {
-			meshRef.current.rotation.x += delta;
-		}
-	});
-
-	// Return view, these are regular three.js elements expressed in JSX
+const Text3dComponent = ({
+	text,
+	position,
+	rotation,
+}: {
+	text: string;
+	position: [number, number, number];
+	rotation: [number, number, number];
+}) => {
 	return (
-		<mesh
-			{...props}
-			ref={meshRef}
-			scale={active ? 1.5 : 1}
-			onClick={(event) => setActive(!active)}
-			onPointerOver={(event) => setHover(true)}
-			onPointerOut={(event) => setHover(false)}
+		<Text3D
+			curveSegments={32}
+			bevelEnabled
+			bevelSize={0.04}
+			bevelThickness={0.1}
+			height={0.5}
+			lineHeight={0.5}
+			letterSpacing={-0.06}
+			size={1.5}
+			font={font}
+			position={position}
+			rotation={rotation}
 		>
-			<boxGeometry args={[1, 1, 1]} />
-			<meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
-		</mesh>
+			{text}
+			<meshStandardMaterial color="black" />
+		</Text3D>
 	);
-}
+};
 
-function Text3d({ margin = 0.5 }) {
+const Text3d = () => {
 	return (
 		<>
 			<Center>
 				<Center top left>
-					<Text3D font={font}>Hello World</Text3D>
+					<Text3dComponent
+						text="HELLO"
+						position={[0, 5, 0]}
+						rotation={[-Math.PI / 2, 0, 0]}
+					/>
+					<Text3dComponent
+						text="WORLD"
+						position={[1, 4, 2]}
+						rotation={[-Math.PI / 2, 0, 0]}
+					/>
 				</Center>
 			</Center>
 		</>
 	);
-}
+};
+
 const Main = () => {
 	return (
-		<Canvas className="w-1/2">
-			<ambientLight intensity={Math.PI / 2} />
-			<spotLight
-				position={[10, 10, 10]}
-				angle={0.15}
-				penumbra={1}
-				decay={0}
-				intensity={Math.PI}
-			/>
-			<pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
-			<Text3d />
+		<Canvas
+			shadows
+			camera={{ position: [-1, 20, 5], fov: 30, zoom: 1.5 }}
+			style={{ background: "#EAECEC" }}
+		>
+			<group>
+				<Center top>
+					<Text3d />
+				</Center>
+				<Line
+					points={[
+						[-10000, 0, 0],
+						[10000, 0, 0],
+					]} // 線の始点と終点
+					color="red"
+					lineWidth={2}
+				/>
+				<Line
+					points={[
+						[0, -10000, 0],
+						[0, 10000, 0],
+					]} // 線の始点と終点
+					color="green"
+					lineWidth={2}
+				/>
+				<Grid
+					args={[10.5, 10, 5]}
+					{...{
+						sectionColor: "#000000",
+						cellThickness: 0.01,
+						fadeDistance: 10,
+						cellColor: "#000000",
+						centerColor: "#000000",
+						size: 0.5,
+						divisions: 10,
+						infiniteGrid: true,
+					}}
+				/>
+			</group>
+			<OrbitControls />
+			<Environment preset="studio" />
 		</Canvas>
 	);
 };
+
 export default Main;

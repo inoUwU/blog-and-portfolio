@@ -8,6 +8,7 @@ import {
 	Environment,
 	Grid,
 	Line,
+	type FontData,
 } from "@react-three/drei";
 import font from "../../public/font/Inter_Bold.json";
 
@@ -30,7 +31,7 @@ const Text3dComponent = ({
 			lineHeight={0.5}
 			letterSpacing={-0.06}
 			size={1.5}
-			font={font}
+			font={font as unknown as FontData}
 			position={position}
 			rotation={rotation}
 		>

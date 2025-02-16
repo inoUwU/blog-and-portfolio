@@ -1,10 +1,10 @@
 "use client";
 
-import type React from "react";
 import { useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Center, Text3D, Text } from "@react-three/drei";
 import type { Mesh } from "three";
-import BasicComponent from "./basic";
+import font from "../../public/font/Inter_Bold.json";
 
 type position = [number, number, number];
 
@@ -42,24 +42,31 @@ function Box(props: BoxProps): React.JSX.Element {
 	);
 }
 
+function Text3d({ margin = 0.5 }) {
+	return (
+		<>
+			<Center>
+				<Center top left>
+					<Text3D font={font}>Hello World</Text3D>
+				</Center>
+			</Center>
+		</>
+	);
+}
 const Main = () => {
 	return (
-		<div className="w-full h-screen">
-			<Canvas>
-				<ambientLight intensity={Math.PI / 2} />
-				<spotLight
-					position={[10, 10, 10]}
-					angle={0.15}
-					penumbra={1}
-					decay={0}
-					intensity={Math.PI}
-				/>
-				<pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
-				<Box position={[-1.2, 0, 0]} />
-				<Box position={[1.2, 0, 0]} />
-			</Canvas>
-			<BasicComponent />
-		</div>
+		<Canvas className="w-1/2">
+			<ambientLight intensity={Math.PI / 2} />
+			<spotLight
+				position={[10, 10, 10]}
+				angle={0.15}
+				penumbra={1}
+				decay={0}
+				intensity={Math.PI}
+			/>
+			<pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
+			<Text3d />
+		</Canvas>
 	);
 };
 export default Main;

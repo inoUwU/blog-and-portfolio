@@ -29,7 +29,7 @@ export default function Hero() {
 				style={{ flex: "1 0 90%", marginTop: "-10%" }}
 			>
 				<p className="flex justify-center gap-4 mb-4">
-					<Link href="/about">
+					<Link href="/blog">
 						<Contact />
 					</Link>
 					<a

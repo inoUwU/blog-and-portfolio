@@ -1,7 +1,7 @@
 "use client";
 
-import Hero3DView from "./Hero/Hero3DView";
-import HeroSideBar from "./Hero/HeroSideBar";
+import Hero3DView from "./Hero3DView";
+import HeroSideBar from "./HeroSideBar";
 
 export default function Home() {
 	return (

@@ -16,20 +16,13 @@ export default function Hero() {
 			id="side-bar-container"
 			className="bg-white h-full text-black flex flex-col"
 		>
-			<header
-				id="sun-moon-container"
-				className="flex justify-end p-2"
-				style={{ flex: "0 0 10%" }}
-			>
-				<SunMoon />
-			</header>
 			<main
 				id="side-bar-content"
 				className="flex flex-col justify-center p-2"
 				style={{ flex: "1 0 90%", marginTop: "-10%" }}
 			>
 				<p className="flex justify-center gap-4 mb-4">
-					<Link href="/about">
+					<Link href="/blog">
 						<Contact />
 					</Link>
 					<a

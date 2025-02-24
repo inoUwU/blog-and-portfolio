@@ -6,7 +6,8 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint"
+		"lint": "next lint",
+		"postinstall": "fumadocs-mdx"
 	},
 	"dependencies": {
 		"@react-three/drei": "^10.0.0-rc.1",
@@ -14,6 +15,9 @@
 		"@react-three/postprocessing": "^3.0.0-rc.2",
 		"@types/three": "^0.173.0",
 		"framer-motion": "^11.18.2",
+		"fumadocs-core": "^15.0.12",
+		"fumadocs-mdx": "^11.5.6",
+		"fumadocs-ui": "^15.0.12",
 		"lucide-react": "^0.475.0",
 		"next": "15.1.6",
 		"next-themes": "^0.4.4",
@@ -24,6 +28,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
 		"@tailwindcss/postcss": "^4.0.0",
+		"@types/mdx": "^2.0.13",
 		"@types/node": "^20",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",

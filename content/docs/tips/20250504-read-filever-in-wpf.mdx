@@ -1,0 +1,45 @@
+---
+title: WPFでファイルバージョンを読み取る
+date: 2025-05-04
+description: WPFアプリケーションのファイルバージョンを取得する方法について説明します。
+---
+
+最近のプロジェクトでWPFアプリケーションを作成している際、アプリケーションの**ファイルバージョン**を取得する必要がありました。  
+調べてみると、バージョンを取得する方法はすぐに見つかったのですが、ファイルバージョンを取得する方法はあまり多く見受けられませんでした。  
+今回は単一ファイルビルドを行っているため、少し手間取ってしまいましたが、備忘録として取得方法を記録しておきます。
+
+## ファイルバージョンを取得する方法
+一般的に、調べたりLLMに質問すると、まず見つかる方法は以下のような手法です。（プロンプトが悪いのかもしれませんが…）  
+`Assembly` のパスを取得し、そこから `FileVersionInfo` を取得する方法です。
+
+```csharp
+var fullname = typeof(App).Assembly.Location;
+var info = System.Diagnostics.FileVersionInfo.GetVersionInfo(fullname);
+var fileVersion = info.FileVersion;
+Console.WriteLine($"ファイルバージョン: {fileVersion}");
+```
+
+上記の方法では、`Assembly` の `Location` を取得し、そこから `FileVersionInfo` を導出しています。  
+このパスは、実行中のアセンブリ（AppName.dll）のパスを指します。  
+しかし、単一ファイルビルドの場合、DLL が出力されないため、DLL のバージョンを取得することができません。
+
+### 今回、単一ファイルビルドでファイルバージョンを取得した方法
+最終的に、現在実行中のプロセス情報を取得して、そこから `FileVersionInfo` を参照する方法でファイルバージョンを取得しました。
+
+```csharp
+var fileVersion = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileVersionInfo.FileVersion;
+Console.WriteLine($"ファイルバージョン: {fileVersion}");
+```
+
+また、`Process.GetCurrentProcess()` を利用する方法とは別に、`Environment.ProcessPath` で実行中のexeのパスを取得し、  
+`FileVersionInfo.GetVersionInfo` でファイルバージョンを取得する方法もあります。
+
+```csharp
+string? exePath = Environment.ProcessPath;
+var info = System.Diagnostics.FileVersionInfo.GetVersionInfo(exePath);
+var fileVersion = info.FileVersion;
+Console.WriteLine($"ファイルバージョン: {fileVersion}");
+```
+### まとめ
+今回は、WPFアプリケーションのファイルバージョンを取得する方法として、通常の方法と単一ファイルビルド時の対応方法について説明しました。  
+もしかすると、より良い方法があるかもしれませんが、私のプロジェクトでは上記の方法でファイルバージョンを取得することができました。

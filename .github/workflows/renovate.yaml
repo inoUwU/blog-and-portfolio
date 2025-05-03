@@ -26,7 +26,7 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git switch -c renovate-pr origin/main
-          git pull
+          git pull --rebase origin renovate-pr || git pull origin renovate-pr
           git commit --allow-empty -m "Renovate Updates"
           git push origin renovate-pr
           gh pr create -B main -H renovate-pr -t "Renovate Updates" -b ''

@@ -1,7 +1,17 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "baseBranches": ["renovate-pr"]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended"
+    ],
+    "baseBranches": [
+        "renovate-pr"
+    ],
+    "packageRules": [
+        {
+            "matchUpdateTypes": [
+                "patch",
+                "minor"
+            ]
+        }
+    ]
 }

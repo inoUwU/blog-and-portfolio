@@ -6,6 +6,7 @@
   "baseBranches": [
     "renovate-pr"
   ],
+  "recreateClosed": true,
   "packageRules": [
     {
       "matchUpdateTypes": ["patch", "minor"],

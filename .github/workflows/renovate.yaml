@@ -16,17 +16,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check PR
-        id: check-pr
-        run: echo "count=$(gh pr list -S 'Renovate Updates in:title' | wc -l)" >> "$GITHUB_OUTPUT"
+      - name: Check for existing PR
+        id: check_pr
+        run: |
+          count=$(gh pr list --state open --search "Renovate Updates in:title" | wc -l)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
 
-      - name: Create PR
-        if: ${{ steps.check-pr.outputs.count == '0' }}
+      - name: Create new branch and PR
+        if: ${{ steps.check_pr.outputs.count == '0' }}
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git switch -c renovate-pr origin/main
-          git pull --rebase origin renovate-pr || git pull origin renovate-pr
-          git commit --allow-empty -m "Renovate Updates"
-          git push origin renovate-pr
-          gh pr create -B main -H renovate-pr -t "Renovate Updates" -b ''
+          git fetch origin
+
+          # 再作成
+          git checkout -b renovate-pr origin/main
+
+          # 空コミットで更新を促す
+          git commit --allow-empty -m "Trigger Renovate Updates"
+          git push -u origin renovate-pr
+
+          # PR作成
+          gh pr create -B main -H renovate-pr -t "Renovate Updates" -b ""

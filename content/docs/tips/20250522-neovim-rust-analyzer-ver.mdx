@@ -1,0 +1,77 @@
+---
+title: NeovimでRustのバージョンに合わせてrust-analyzerも固定する
+date: 2025-05-22
+description: Neovim+rustaceanvim環境で、特定のRustバージョンに合わせたrust-analyzerの設定方法を説明します。
+full: false
+---
+
+## NeovimでRustのバージョンに合わせてrust-analyzerも固定する
+
+Rustの開発をしていると、`rust-toolchain.toml`でRustのバージョンを固定することがあります。しかし、それに合わせた`rust-analyzer`のバージョンも適切でないと、補完や型エラーなどのLSP機能がうまく動作しないことがあります。
+私は[「［作って学ぶ］ブラウザのしくみ──HTTP、HTML、CSS、JavaScriptの裏側 WEB+DB PRESS plus」](https://amzn.asia/d/jhlGJti)を実装中に、Rustのnightlyを使う必要がありました。そこで、`rust-analyzer`のバージョンも固定する必要が出てきました。
+
+今回は、**Neovim + rustaceanvim** 環境で、**2025-01-06版のrust-analyzer** を使用する設定を行ったので、メモがてら共有します。
+
+---
+
+### 課題と背景
+
+`rust-toolchain.toml`で以下のようにバージョンを固定していたところ、NeovimのLSP機能が無効になっていました。
+
+```toml
+[toolchain]
+channel = "nightly-2024-01-01"
+components = ["rust-src", "clippy"]
+```
+
+これはどうやら、現在の最新版の`rust-analyzer`がこのnightlyバージョンと互換性がなく、LSPの起動が失敗していたのが原因でした。
+
+---
+
+### 解決方法（ほぼ kip2 さんの記事と同じ！）
+
+Zennで公開されていた [kip2さんの素晴らしい記事](https://zenn.dev/kip2/articles/pinning-rust-analyzer-version) に従って、プロジェクトローカルに`rust-analyzer`バイナリをダウンロードし、`.vscode/settings.json`でそのパスを指定することで解決できます。
+
+Neovimの場合も、私は [**rustaceanvim**](https://github.com/mrcjkb/rustaceanvim) を使っているため、`.vscode/settings.json` に以下のように記述するだけでOKです：
+
+```json
+{
+  "rust-analyzer.server.path": "./rust-analyzer/bin/rust-analyzer"
+}
+```
+
+`rustaceanvim` はこの設定を読み取り、自動的に `lspconfigのcmd` を上書きしてくれるので特にNeovim側で明示的に設定する必要はありませんでした。
+
+---
+
+### バイナリの配置と管理
+
+以下のようにローカルにバイナリを置く構成にしました：
+
+```
+my-project/
+├── rust-analyzer/
+│   └── bin/
+│       └── rust-analyzer  ← ダウンロード＆展開した実行ファイル
+├── .vscode/
+│   └── settings.json
+├── src/
+├── ...
+```
+
+このようにローカルで管理しているバイナリは、Gitで管理する必要がないので `.gitignore` に追加しておきましょう：
+
+```
+/rust-analyzer/
+```
+---
+### まとめ
+
+* Rustのnightlyを使う場合、`rust-analyzer`の互換性が問題になることがある  
+ご自身のNeovim環境でも同様の問題に悩んでいる方がいれば、ぜひ参考にしてみてください！
+---
+
+#### 参考：
+- [rust-analyzerがうまく働かないときの対処法](https://zenn.dev/kip2/articles/pinning-rust-analyzer-version)
+- [rustaceanvimの設定をプロジェクトごとに動的に読み込む方法](https://github.com/mrcjkb/rustaceanvim?tab=readme-ov-file#how-to-dynamically-load-different-rust-analyzer-settings-per-project)
+

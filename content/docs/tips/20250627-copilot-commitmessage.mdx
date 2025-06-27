@@ -1,5 +1,5 @@
 ---
-title: GitHub Copilot のコミットメッセージ生成をカスタムする
+title: GitHub Copilot のコミットメッセージ生成をカスタマイズする
 date: 2025-06-27
 description: GitHub Copilot を使ってコミットメッセージを生成する際に、特定のフォーマット・内容・日本語などを指定する方法を紹介します。
 full: false
@@ -56,7 +56,7 @@ structure
 ```text
 feat: ✨ CleanArchitectureのフォルダ構成を作成
 * `api`, `controllers`, `domain`, `infrastructure`, `presenters`, `usecases` などの新しいディレクトリに.gitkeepファイルを追加しました。
-* 空のディレクトリを保持するために必要です。`
+* 空のディレクトリを保持するために必要です。
 ```
 
 しっかりとルールに従って、日本語化+Gitmoji+Conventional Commitsのフォーマットに従ったコミットメッセージが生成されました。
@@ -101,7 +101,7 @@ feat: ✨ CleanArchitectureのフォルダ構成を作成
 
 \[optional footer(s)]
 
-````
+```
 
 - The message must start with a **type** (`feat`, `fix`, `docs`, etc.).
 - A **scope** may be included in parentheses.
@@ -118,7 +118,7 @@ feat: ✨ CleanArchitectureのフォルダ構成を作成
 feat(login): add support for OAuth2
 
 fix(parser): handle null inputs correctly
-````
+```
 
 ### With Body
 

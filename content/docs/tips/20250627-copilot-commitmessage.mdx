@@ -75,7 +75,7 @@ feat: ✨ CleanArchitectureのフォルダ構成を作成
 {
     "github.copilot.chat.commitMessageGeneration.instructions": [
         {
-            "file": "指示が書かれているファイルのパス"
+            "file": ".docs/conventional-commits.md"
         },
     ]
 }
@@ -83,7 +83,7 @@ feat: ✨ CleanArchitectureのフォルダ構成を作成
 
 <details>
 
-<summary>指示内容</summary>
+<summary>conventional-commits.mdの内容</summary>
 # Conventional Commits Usage Guide
 
 > 📘 This document includes material from the [Conventional Commits v1.0.0 Specification](https://www.conventionalcommits.org/en/v1.0.0/), licensed under [Creative Commons Attribution 3.0 International (CC BY 3.0)](https://creativecommons.org/licenses/by/3.0/).  
@@ -186,18 +186,20 @@ You may define and use additional types if needed.
 上記の内容を指示することで、よりCopilotはConventional Commitsのフォーマットに従ったコミットメッセージを生成することができます
 
 ```text
-// 実際のコミットメッセージ
-
+feat(docs): ✨ ER図とセッション管理フロー図を更新
+- ER図に新しいテーブルと関係を追加
+- 不要なファイルを削除
+- セッション管理フロー図のタイトルを修正
 ```
 
-[先ほどのコミットメッセージ](#### 実際に生成されるコミットメッセージの例)よりも`<doc>`などをしっかりとかりと記述することで、より正確なコミットメッセージを生成することができます。
-
+先ほどのこのコミットメッセージよりも`<docs>`などをしっかりと指定してくれています。
+> `<docs>`のdocsフォルダ内部のファイルを変更したので指定してくれているのだと思います。
 
 
 ##### まとめ
 今回はGitHub Copilot を使ってコミットメッセージを生成する際に、特定のフォーマット・内容・日本語などを指定する方法を紹介しました。
 意外と頭の中ではどんな作業を行ったのかを把握していても、いざメッセージを書くとなると意外と筆(タイピング)が進まないことがありませんか？私はそうでした。
-とりあえず生成できることでとても楽になりました。
+とりあえず生成できること書き始める一歩目がとても楽になりました。
 
 今回は厳しくしていませんが以下のようなlinterを導入することで、より良いコミットメッセージを生成できるようになると思います
 

@@ -1,0 +1,73 @@
+---
+title: C#のprivateコンストラクターを使ったヨ
+date: 2025-09-19
+description: C#のprivateコンストラクターの使用例とその利点
+---
+
+こんにちは。今日は **C#のprivateコンストラクター** についての備忘録を書いてみます。  
+
+僕にとってC#は最初に触ったプログラミング言語です。  
+未経験で入社して、いきなり **JS + CSS + C#** を渡されて、コードを書きながら覚えていきました。  
+
+今回なぜprivateコンストラクターを使ったのかというと、  
+ちょっとしたプロジェクトで **Result型** を導入したかったからです。  
+
+`.Next` の [ResultType](https://dotnet.github.io/dotNext/features/core/result.html) や  
+[FluentResults](https://github.com/altmann/FluentResults) といったライブラリもあるんですが、  
+今回は勉強がてら、自分で実装してみました。  
+
+---
+
+## 実際に書いたコード（だいたいこんな感じ）
+
+```csharp
+public class Result<T>
+{
+    private Result(T value, bool isSuccess, string error = null)
+    {
+        Value = value;
+        IsSuccess = isSuccess;
+        Error = error;
+    }
+
+    public T Value { get; }
+    public bool IsSuccess { get; }
+    public string Error { get; }
+
+    public static Result<T> Success(T value) 
+        => new Result<T>(value, true);
+
+    public static Result<T> Failure(string error) 
+        => new Result<T>(default, false, error);
+}
+````
+
+---
+
+## 学んだこと
+
+書いている途中で「あれ、コンストラクターって **private** にできるんだ！」とちょっと驚きました。
+C#を触り始めた頃は全然意識してなかったので…。
+
+privateコンストラクターを使うと、
+**「クラスのインスタンス化を制御できる」** というのがポイントですね。
+
+上のコードだと `Result<T>` は
+
+* `Success()`
+* `Failure()`
+
+この2つの静的メソッドからしか作れないようになっています。
+OOPに詳しい人にとっては当たり前かもしれないけど、自分にとっては新鮮な発見でした。
+
+ちなみにKotlinだと
+`companion object + private constructor` で似たことができますね！（たぶん）
+
+---
+
+## まとめ
+
+まだまだ自分から「ここはprivateコンストラクターだな！」と発想するのは難しいけど、
+こういう使い方があるんだと学べて良かったです。
+
+C#面白いな〜って思えた瞬間のひとつでした。

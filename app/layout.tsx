@@ -1,9 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+// import { Inter } from "next/font/google";
 import { RootProvider } from "fumadocs-ui/provider";
 
-const inter = Inter({ subsets: ["latin"] });
+// const inter = Inter({ subsets: ["latin"] });
+// Using system fonts as fallback due to sandboxed environment
+const inter = { className: "font-sans" };
 
 export const metadata: Metadata = {
   title: "Create Next App",

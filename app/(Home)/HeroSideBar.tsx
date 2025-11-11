@@ -3,12 +3,14 @@ import GithubIcon from "../../public/github.svg";
 import XIcon from "../../public/x.svg";
 import Image from "next/image";
 import Link from "next/link";
-import { Itim } from "next/font/google";
+// import { Itim } from "next/font/google";
 
-const ItimFont = Itim({
-	weight: "400",
-	subsets: ["latin"],
-});
+// const ItimFont = Itim({
+// 	weight: "400",
+// 	subsets: ["latin"],
+// });
+// Using system fonts as fallback due to sandboxed environment
+const ItimFont = { className: "font-serif" };
 
 export default function Hero() {
 	return (

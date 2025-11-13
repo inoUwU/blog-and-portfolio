@@ -8,9 +8,6 @@ import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
  * Docs Layout: app/docs/layout.tsx
  */
 export const baseOptions: BaseLayoutProps = {
-  themeSwitch: {
-    enabled: true,
-  },
   i18n: undefined,
   nav: {
     title: (

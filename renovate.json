@@ -7,6 +7,14 @@
     "renovate-pr"
   ],
   "recreateClosed": true,
+  "schedule": [
+    "every weekend"
+  ],
+  "stabilityDays": 3,
+  "ignoreUnstable": true,
+  "groupName": "all dependencies",
+  "groupSlug": "all",
+  "separateMajorMinor": false,
   "packageRules": [
     {
       "matchUpdateTypes": ["patch", "minor"],

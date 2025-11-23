@@ -11,7 +11,25 @@ import { useGSAP } from '@gsap/react';
 
 export default function AboutMeLayout() {
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
   const bgRef = useRef<HTMLDivElement>(null);
+
+  // Responsive check
+  React.useEffect(() => {
+    const checkSize = () => {
+      if (window.innerWidth < 768) {
+        setIsPanelOpen(false);
+      } else {
+        setIsPanelOpen(true);
+      }
+    };
+    
+    // Initial check
+    checkSize();
+
+    window.addEventListener('resize', checkSize);
+    return () => window.removeEventListener('resize', checkSize);
+  }, []);
 
   const activeEvent = activeEventId 
     ? careerData.find(e => e.id === activeEventId) || null
@@ -69,24 +87,35 @@ export default function AboutMeLayout() {
       </div>
 
       {/* Top Toolbar */}
-      <Toolbar />
+      <Toolbar onTogglePanel={() => setIsPanelOpen(!isPanelOpen)} />
 
       {/* Main Workspace Area */}
       <div className="flex flex-grow overflow-hidden z-10 relative">
+        {/* Mobile Overlay */}
+        {isPanelOpen && (
+            <div 
+                className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                onClick={() => setIsPanelOpen(false)}
+            ></div>
+        )}
+
         {/* Left Sidebar (Project Panel) */}
-        <div className="w-64 flex-shrink-0 h-full">
+        <div className={`
+            fixed inset-y-0 left-0 z-50 w-64 h-full bg-gray-200 dark:bg-[#1e1e1e] transition-transform duration-300 ease-in-out shadow-xl md:shadow-none md:relative md:translate-x-0
+            ${isPanelOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
           <ProjectPanel />
         </div>
 
         {/* Center/Right Area */}
-        <div className="flex flex-col flex-grow h-full">
+        <div className="flex flex-col flex-grow h-full w-full">
           {/* Viewport (Composition) */}
           <div className="flex-grow relative bg-gray-200 dark:bg-[#0f0f0f]">
             <Viewport event={activeEvent} />
           </div>
 
           {/* Bottom Timeline */}
-          <div className="h-1/3 min-h-[200px] border-t border-gray-300 dark:border-[#333]">
+          <div className="h-1/3 min-h-[150px] md:min-h-[200px] border-t border-gray-300 dark:border-[#333]">
             <Timeline 
               events={careerData} 
               activeEventId={activeEventId} 

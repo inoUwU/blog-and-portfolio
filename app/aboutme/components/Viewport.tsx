@@ -82,7 +82,7 @@ export default function Viewport({ event }: ViewportProps) {
   const currentEvent = displayEvent || event;
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-gray-200 dark:bg-[#0f0f0f] relative overflow-hidden flex items-center justify-center p-8 transition-colors duration-300">
+    <div ref={containerRef} className="h-full w-full bg-gray-200 dark:bg-[#0f0f0f] relative overflow-hidden flex items-center justify-center p-4 md:p-8 transition-colors duration-300">
       {/* Background Grid */}
       <div className="absolute inset-0 opacity-10 pointer-events-none" 
            style={{ 

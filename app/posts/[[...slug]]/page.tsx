@@ -8,6 +8,7 @@ import {
 import { notFound } from "next/navigation";
 import { ImageZoom } from "fumadocs-ui/components/image-zoom";
 import defaultMdxComponents from "fumadocs-ui/mdx";
+import { LinkCard } from "@/app/components/link-card";
 
 export default async function Page(props: {
 	params: Promise<{ slug?: string[] }>;
@@ -26,6 +27,7 @@ export default async function Page(props: {
 				<MDX
 					components={{
 						...defaultMdxComponents,
+						LinkCard,
 						// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 						img: (props) => <ImageZoom {...(props as any)} />,
 					}}

@@ -1,0 +1,259 @@
+---
+title: FumadocsにリンクカードコンポーネントをMDXプラグインとして追加する
+date: 2026-03-31
+description: Fumadocsにはデフォルトでリンクカードが存在しないため、OGP取得付きのLinkCardコンポーネントを自作してMDXに登録する方法を解説します。
+---
+
+## はじめに
+
+このブログは [Fumadocs](https://www.fumadocs.dev/) を使って構築しています。
+Fumadocsは美しいドキュメントサイトを構築するためのフレームワークで、`Accordion`や`ImageZoom`、`Tabs`など多くのUIコンポーネントが提供されています。
+
+しかし、**リンクカード（LinkCard）コンポーネントはデフォルトでは提供されていません。**
+
+Zennやはてなブログなどでおなじみの、URLを貼るだけでOGP情報を取得してカード形式で表示してくれるコンポーネントが欲しかったので、自作してMDXに登録しました。
+この記事ではその作成手順を解説します。
+
+## 全体の構成
+
+今回の実装は大きく3つのパーツで構成されます。
+
+1. **OGP取得ユーティリティ**（`lib/ogp.ts`） — URLからOGP情報をフェッチして返す
+2. **LinkCardコンポーネント**（`app/components/link-card.tsx`） — OGP情報をカード形式で描画する
+3. **MDXへの登録**（`app/posts/[[...slug]]/page.tsx`） — MDX内で `<LinkCard />` を使えるようにする
+
+## 1. OGP取得ユーティリティの作成
+
+まず、指定されたURLのHTMLをフェッチしてOGPメタデータを抽出するユーティリティを作成します。
+HTMLパースには軽量な `node-html-parser` を使います。
+
+```bash
+npm install node-html-parser
+```
+
+`lib/ogp.ts` に以下のように実装します。
+
+```tsx title="lib/ogp.ts"
+import { parse, type HTMLElement } from "node-html-parser";
+import { cache } from "react";
+
+export type LinkPreviewMetadata = {
+  url: string;
+  hostname: string;
+  title?: string;
+  description?: string;
+  siteName?: string;
+  image?: string;
+  icon?: string;
+};
+
+const LINK_CARD_REVALIDATE_SECONDS = 60 * 60 * 6; // 6時間キャッシュ
+const USER_AGENT =
+  "Mozilla/5.0 (compatible; LinkCardBot/1.0; +https://github.com/ino/blog-and-portfolio)";
+```
+
+### メタタグの抽出
+
+OGPの`og:title`、`og:description`、`og:image`などを優先的に取得し、フォールバックとして通常のmetaタグや`<title>`タグも参照します。
+
+```tsx title="lib/ogp.ts"
+const metaCandidates: Record<string, string[]> = {
+  title: ["og:title", "twitter:title", "title"],
+  description: ["og:description", "description", "twitter:description"],
+  siteName: ["og:site_name"],
+  image: ["og:image", "twitter:image"],
+};
+
+const pickMeta = (root: HTMLElement, key: string): string | undefined => {
+  const selectors = metaCandidates[key];
+  if (!selectors) return undefined;
+  for (const candidate of selectors) {
+    const element = root.querySelector(
+      `meta[property='${candidate}'], meta[name='${candidate}']`,
+    );
+    const content = element?.getAttribute("content")?.trim();
+    if (content) return content;
+  }
+  if (key === "title") {
+    return root.querySelector("title")?.text.trim();
+  }
+  return undefined;
+};
+```
+
+ポイントは**フォールバックの順序**です。`og:title` → `twitter:title` → `<title>` の順で探索し、最初に見つかったものを使用します。
+
+### ファビコンの取得
+
+サイトアイコンも複数のlink要素から検索します。
+
+```tsx title="lib/ogp.ts"
+const iconSelectors = [
+  "link[rel='apple-touch-icon']",
+  "link[rel='shortcut icon']",
+  "link[rel='icon']",
+];
+
+const pickIcon = (root: HTMLElement, base: URL): string | undefined => {
+  for (const selector of iconSelectors) {
+    const node = root.querySelector(selector);
+    const href = node?.getAttribute("href")?.trim();
+    const sized = absoluteUrl(href, base);
+    if (sized) return sized;
+  }
+  return undefined;
+};
+```
+
+### フェッチ処理
+
+Reactの `cache` 関数を使い、同一リクエスト内で同じURLへの重複フェッチを防ぎます。
+また、Next.jsの `next.revalidate` オプションを使い6時間のISRキャッシュを設定しています。
+
+```tsx title="lib/ogp.ts"
+export const fetchLinkPreview = cache(async (rawUrl: string): Promise<LinkPreviewMetadata> => {
+  const baseUrl = normalizeUrl(rawUrl);
+  const fallback: LinkPreviewMetadata = {
+    url: baseUrl.toString(),
+    hostname: baseUrl.hostname,
+  };
+  try {
+    const response = await fetch(baseUrl.toString(), {
+      headers: { "user-agent": USER_AGENT },
+      next: { revalidate: LINK_CARD_REVALIDATE_SECONDS },
+    });
+    if (!response.ok) return fallback;
+    const html = await response.text();
+    const metadata = collectMetadata(html, baseUrl);
+    return { ...fallback, ...metadata };
+  } catch {
+    return fallback;
+  }
+});
+```
+
+フェッチに失敗した場合でもホスト名だけは表示されるよう、フォールバックを返す設計にしています。
+
+## 2. LinkCardコンポーネントの作成
+
+次にUIコンポーネントを作成します。**Server Component**として実装し、サーバー側でOGP情報を取得します。
+
+```tsx title="app/components/link-card.tsx"
+import Link from "next/link";
+import type { CSSProperties } from "react";
+import { fetchLinkPreview } from "@/lib/ogp";
+
+export type LinkCardProps = {
+  url: string;
+  title?: string;
+  description?: string;
+  label?: string;
+  className?: string;
+};
+
+export async function LinkCard({
+  url,
+  title,
+  description,
+  label,
+  className = "",
+}: LinkCardProps) {
+  const preview = await fetchLinkPreview(url);
+  const siteLabel = label ?? preview.siteName ?? preview.hostname;
+  const displayTitle = title ?? preview.title ?? preview.hostname;
+  const displayDescription = description ?? preview.description;
+
+  return (
+    <Link
+      href={preview.url}
+      prefetch={false}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`${displayTitle} へのリンク`}
+      className="group flex w-full gap-4 overflow-hidden rounded-2xl border ..."
+    >
+      {/* サムネイル部分 */}
+      <div className="relative aspect-video w-40 flex-shrink-0 overflow-hidden rounded-xl ...">
+        {preview.image ? (
+          <img src={preview.image} alt={displayTitle} loading="lazy" />
+        ) : preview.icon ? (
+          <img src={preview.icon} alt={`${siteLabel} のアイコン`} loading="lazy" />
+        ) : (
+          <div>{siteLabel}</div>
+        )}
+      </div>
+      {/* テキスト部分 */}
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
+        <span>{siteLabel}</span>
+        <span>{displayTitle}</span>
+        {displayDescription ? <p>{displayDescription}</p> : null}
+        <span>{preview.hostname}</span>
+      </div>
+    </Link>
+  );
+}
+```
+
+### 設計のポイント
+
+- **async Server Component**: Next.js App Routerの非同期Server Componentなので、`await`で直接OGPを取得できます。クライアントJSは不要です。
+- **フォールバック表示**: OGP画像がない場合はファビコン、それもなければサイト名をテキスト表示します。
+- **Props でのオーバーライド**: `title`や`description`をPropsで渡せば、OGPの値を上書きできます。
+
+## 3. MDXコンポーネントとして登録する
+
+Fumadocsでは、MDXファイル内で使用できるカスタムコンポーネントを `page.tsx` の `components` プロパティで登録します。
+
+```tsx title="app/posts/[[...slug]]/page.tsx" {2,11}
+import defaultMdxComponents from "fumadocs-ui/mdx";
+import { LinkCard } from "@/app/components/link-card";
+
+// ... ページコンポーネント内
+<MDX
+  components={{
+    ...defaultMdxComponents,
+    LinkCard,
+    img: (props) => <ImageZoom {...(props as any)} />,
+  }}
+/>
+```
+
+ポイントは以下の通りです：
+
+1. `fumadocs-ui/mdx` から `defaultMdxComponents` をインポート — Fumadocsが提供するデフォルトのMDXコンポーネント（見出し、コードブロック等）を取得
+2. スプレッド演算子で展開し、自作の `LinkCard` を追加
+3. これでMDX内で `<LinkCard />` がJSXコンポーネントとして認識される
+
+## 4. MDXファイルでの使い方
+
+登録が完了すると、MDXファイル内で以下のように使用できます。
+
+```mdx
+## 参考リンク
+
+<LinkCard url="https://nextjs.org/blog" />
+```
+
+URLを渡すだけで、自動的にそのサイトのOGP情報を取得してカード形式で表示されます。
+
+タイトルや説明を手動で指定することも可能です：
+
+```mdx
+<LinkCard
+  url="https://www.fumadocs.dev/"
+  title="Fumadocs"
+  description="Build beautiful documentation sites with Next.js"
+/>
+```
+
+## まとめ
+
+Fumadocsにはデフォルトでリンクカードコンポーネントが存在しませんが、以下の手順で簡単に追加できました。
+
+1. `node-html-parser` でOGP情報を取得するユーティリティを作成
+2. Server ComponentとしてLinkCardコンポーネントを実装
+3. `page.tsx` の `components` にカスタムコンポーネントを登録
+
+Fumadocsでは `defaultMdxComponents` をスプレッドして独自コンポーネントを追加するだけなので、他のカスタムコンポーネントも同じパターンで追加できます。
+
+<LinkCard url="https://www.fumadocs.dev/docs/ui/components" />

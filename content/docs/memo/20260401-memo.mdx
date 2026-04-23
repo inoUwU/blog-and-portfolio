@@ -1,0 +1,96 @@
+---
+title: 思考メモ:境界での翻訳について
+date: 2026-04-01
+description: EF Core を使って DB のマジックナンバーを翻訳している話
+---
+
+## はじめに
+
+おつかれさまです。
+最近のプロジェクトでは、Entity Framework Core (EF Core) を使って、データベースにあるマジックナンバーを翻訳するようにしています。
+これまで携わった案件では、0 が「未設定」、1 が「有効」、2 が「無効」といった値がコード内に散らばっていることがありました。
+定数化はされていても、実態としてはただの数値なので、C# 側では型安全になっていないのが気になっていました。
+
+たとえば、こんな感じです。
+
+```csharp
+const int STATUS_UNSET = 0;
+const int STATUS_ACTIVE = 1;
+const int STATUS_INACTIVE = 2;
+
+public void UpdateStatus(int status)
+{
+    if (status == STATUS_UNSET)
+    {
+        // 未設定の処理
+    }
+    else if (status == STATUS_ACTIVE)
+    {
+        // 有効の処理
+    }
+    else if (status == STATUS_INACTIVE)
+    {
+        // 無効の処理
+    }
+}
+```
+
+この書き方だと、`UpdateStatus` メソッドの引数 `status` は整数型のままです。
+呼び出し側は毎回定数を参照する必要があり、可読性もあまりよくありません。
+誤って想定外の値を渡してしまう可能性もあります。
+
+そこで、EF Core の機能を使って、データベースのマジックナンバーを翻訳することにしました。
+EF Core では `HasConversion` や値コンバーターを使って、DB の値を C# の型に変換できます。
+<LinkCard url="https://learn.microsoft.com/ja-jp/ef/core/modeling/value-conversions?tabs=data-annotations" />
+
+たとえば、次のように Enum を定義して、EF Core の `HasConversion` を使えば、DB の整数値を Enum に変換できます。
+
+```csharp
+public enum Status
+{
+    Unset = 0,
+    Active = 1,
+    Inactive = 2
+}
+
+public class MyEntity
+{
+    public int Id { get; set; }
+    public Status Status { get; set; }
+}
+
+public class MyDbContext : DbContext
+{
+    public DbSet<MyEntity> MyEntities { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<MyEntity>()
+            .Property(e => e.Status)
+            .HasConversion<int>();
+    }
+}
+```
+
+こうしておくと、`MyEntity` の `Status` プロパティは `Status` Enum 型になります。
+コードの可読性が上がりますし、無効な値を渡すリスクも減らせます。
+DB 側の値が変わったときも、コード内の Enum を見直せばよいので、保守もしやすくなります。
+
+## 考え方の変化
+
+以前は、DB のマジックナンバーをコード内でそのまま扱うことが多かったです。
+ただ、EF Core の機能を使うことで、C# 側をより型安全で読みやすい形に寄せられると分かりました。
+これは、C# が主で DB はその境界の向こう側、という考え方に近いです。
+
+Vue.js を使っていたプロジェクトでは、型をきちんと定義していたのに、C# のプロジェクトではなぜか定数で済ませていたことにも気づきました。
+プロジェクトの都合もあったとは思いますが、値オブジェクトのように型を用意しておくことの大切さを改めて感じました。
+
+また、このプロジェクトでは FSM（有限状態機械）も採用しました。
+UI を伴うシステムでは、初期化中、新規登録中、編集中などで状態遷移が複雑になりやすいです。
+FSM を入れることで、画面状態ごとの管理がしやすくなり、MVVM と合わせて保存処理の制御もしやすくなりました。
+
+## 所感
+
+この方法を採用することで、コードの可読性と保守性はかなり上がったと感じています。
+Enum を使うことで型安全性も確保しやすくなり、想定外の値を扱う不安も減りました。
+今後も、こうした境界での翻訳を意識していきたいと思います。

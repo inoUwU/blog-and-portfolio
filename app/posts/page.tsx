@@ -135,9 +135,6 @@ export default async function PostsPage({ searchParams }: PostsPageProps) {
                     {visiblePosts.length} entries
                   </span>
                 </div>
-                <p className="text-sm leading-7 text-fd-muted-foreground">
-                  ディレクトリ名からカテゴリを動的に作り、カードは横方向に並べながら画面幅に応じて自然に折り返します。
-                </p>
               </div>
 
               <div className="flex flex-wrap gap-2">

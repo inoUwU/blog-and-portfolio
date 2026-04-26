@@ -1,40 +1,44 @@
 {
-	"name": "blog-and-portfolio",
-	"version": "0.1.0",
-	"private": true,
-	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
-		"start": "next start",
-		"lint": "next lint",
-		"postinstall": "fumadocs-mdx"
-	},
-	"dependencies": {
-		"@react-three/drei": "^10.7.7",
-		"@react-three/fiber": "^9.5.0",
-		"@react-three/postprocessing": "^3.0.4",
-		"@types/three": "^0.183.1",
-		"framer-motion": "^12.38.0",
-		"fumadocs-core": "^16.7.5",
-		"fumadocs-mdx": "^14.2.11",
-		"fumadocs-ui": "^16.7.5",
-		"lucide-react": "^1.0.1",
-		"next": "^16.2.1",
-		"next-themes": "^0.4.6",
-		"node-html-parser": "^7.1.0",
-		"react": "^19.2.4",
-		"react-dom": "^19.2.4",
-		"three": "0.183.2"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "2.4.8",
-		"@tailwindcss/postcss": "^4.2.2",
-		"@types/mdx": "^2.0.13",
-		"@types/node": "^25",
-		"@types/react": "^19",
-		"@types/react-dom": "^19",
-		"postcss": "^8",
-		"tailwindcss": "^4.2.2",
-		"typescript": "^6"
-	}
+  "name": "blog",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start",
+    "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
+    "postinstall": "fumadocs-mdx",
+    "lint": "vp lint",
+    "prepare": "vp config"
+  },
+  "dependencies": {
+    "@orama/orama": "^3.1.18",
+    "@orama/stopwords": "^3.1.18",
+    "@orama/tokenizers": "^3.1.18",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.0",
+    "fumadocs-core": "16.8.2",
+    "fumadocs-mdx": "14.3.1",
+    "fumadocs-ui": "16.8.2",
+    "install": "^0.13.0",
+    "lucide-react": "^1.8.0",
+    "next": "16.2.4",
+    "node-html-parser": "^7.1.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "tailwind-merge": "^3.5.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.3",
+    "vite-plus": "catalog:"
+  },
+  "packageManager": "pnpm@10.33.2"
 }

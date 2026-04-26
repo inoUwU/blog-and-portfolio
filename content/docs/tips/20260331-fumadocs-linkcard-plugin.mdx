@@ -86,9 +86,7 @@ const pickMeta = (root: HTMLElement, key: string): string | undefined => {
   const selectors = metaCandidates[key];
   if (!selectors) return undefined;
   for (const candidate of selectors) {
-    const element = root.querySelector(
-      `meta[property='${candidate}'], meta[name='${candidate}']`,
-    );
+    const element = root.querySelector(`meta[property='${candidate}'], meta[name='${candidate}']`);
     const content = element?.getAttribute("content")?.trim();
     if (content) return content;
   }
@@ -121,27 +119,25 @@ const collectMetadata = (
   return { title, description, siteName, image, icon };
 };
 
-export const fetchLinkPreview = cache(
-  async (rawUrl: string): Promise<LinkPreviewMetadata> => {
-    const baseUrl = normalizeUrl(rawUrl);
-    const fallback: LinkPreviewMetadata = {
-      url: baseUrl.toString(),
-      hostname: baseUrl.hostname,
-    };
-    try {
-      const response = await fetch(baseUrl.toString(), {
-        headers: { "user-agent": USER_AGENT },
-        next: { revalidate: LINK_CARD_REVALIDATE_SECONDS },
-      });
-      if (!response.ok) return fallback;
-      const html = await response.text();
-      const metadata = collectMetadata(html, baseUrl);
-      return { ...fallback, ...metadata };
-    } catch {
-      return fallback;
-    }
-  },
-);
+export const fetchLinkPreview = cache(async (rawUrl: string): Promise<LinkPreviewMetadata> => {
+  const baseUrl = normalizeUrl(rawUrl);
+  const fallback: LinkPreviewMetadata = {
+    url: baseUrl.toString(),
+    hostname: baseUrl.hostname,
+  };
+  try {
+    const response = await fetch(baseUrl.toString(), {
+      headers: { "user-agent": USER_AGENT },
+      next: { revalidate: LINK_CARD_REVALIDATE_SECONDS },
+    });
+    if (!response.ok) return fallback;
+    const html = await response.text();
+    const metadata = collectMetadata(html, baseUrl);
+    return { ...fallback, ...metadata };
+  } catch {
+    return fallback;
+  }
+});
 ```
 
 ### 実装のポイント
@@ -180,13 +176,7 @@ const descriptionClampStyle: CSSProperties = {
   overflow: "hidden",
 };
 
-export async function LinkCard({
-  url,
-  title,
-  description,
-  label,
-  className = "",
-}: LinkCardProps) {
+export async function LinkCard({ url, title, description, label, className = "" }: LinkCardProps) {
   const preview = await fetchLinkPreview(url);
   const siteLabel = label ?? preview.siteName ?? preview.hostname;
   const displayTitle = title ?? preview.title ?? preview.hostname;
@@ -240,16 +230,11 @@ export async function LinkCard({
           {displayTitle}
         </span>
         {displayDescription ? (
-          <p
-            className="text-sm text-zinc-600 dark:text-zinc-300"
-            style={descriptionClampStyle}
-          >
+          <p className="text-sm text-zinc-600 dark:text-zinc-300" style={descriptionClampStyle}>
             {displayDescription}
           </p>
         ) : null}
-        <span className="text-xs text-zinc-400 dark:text-zinc-500">
-          {preview.hostname}
-        </span>
+        <span className="text-xs text-zinc-400 dark:text-zinc-500">{preview.hostname}</span>
       </div>
     </Link>
   );
@@ -269,17 +254,13 @@ Fumadocsでは、MDXファイル内で使用できるカスタムコンポーネ
 
 ```tsx title="app/posts/[[...slug]]/page.tsx"
 import { source } from "../../../lib/source";
-import {
-  DocsPage, DocsBody, DocsDescription, DocsTitle,
-} from "fumadocs-ui/page";
+import { DocsPage, DocsBody, DocsDescription, DocsTitle } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 import { ImageZoom } from "fumadocs-ui/components/image-zoom";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import { LinkCard } from "@/app/components/link-card";
 
-export default async function Page(props: {
-  params: Promise<{ slug?: string[] }>;
-}) {
+export default async function Page(props: { params: Promise<{ slug?: string[] }> }) {
   const params = await props.params;
   const page = source.getPage(params.slug);
   if (!page) notFound();

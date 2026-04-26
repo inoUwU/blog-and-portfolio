@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 export const metadata: Metadata = {
-	title: "Fract.Home",
-	description: "Hello,I'm Fract.",
+  title: "Fract.Home",
+  description: "Hello,I'm Fract.",
 };
 
 export default function HomeLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-	return <>{children}</>;
+  return <>{children}</>;
 }

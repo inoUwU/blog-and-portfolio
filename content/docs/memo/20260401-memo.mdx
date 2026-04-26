@@ -41,6 +41,7 @@ public void UpdateStatus(int status)
 
 そこで、EF Core の機能を使って、データベースのマジックナンバーを翻訳することにしました。
 EF Core では `HasConversion` や値コンバーターを使って、DB の値を C# の型に変換できます。
+
 <LinkCard url="https://learn.microsoft.com/ja-jp/ef/core/modeling/value-conversions?tabs=data-annotations" />
 
 たとえば、次のように Enum を定義して、EF Core の `HasConversion` を使えば、DB の整数値を Enum に変換できます。

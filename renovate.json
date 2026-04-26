@@ -1,15 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "baseBranches": [
-    "renovate-pr"
-  ],
+  "extends": ["config:recommended"],
+  "baseBranches": ["renovate-pr"],
   "recreateClosed": true,
-  "schedule": [
-    "every weekend"
-  ],
+  "schedule": ["* * * * 0,6"],
   "stabilityDays": 3,
   "ignoreUnstable": true,
   "groupName": "all dependencies",

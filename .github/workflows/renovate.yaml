@@ -1,4 +1,4 @@
-name: commit
+name: sync-renovate-branch
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
       - name: Check for existing PR
         id: check_pr
         run: |
-          count=$(gh pr list --state open --search "Renovate Updates in:title" | wc -l)
+          count=$(gh pr list --state open --search "Renovate Updates in:title" --json number --jq 'length')
           echo "count=$count" >> "$GITHUB_OUTPUT"
 
       - name: Create new branch and PR

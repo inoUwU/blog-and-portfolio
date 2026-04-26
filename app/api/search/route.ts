@@ -1,4 +1,13 @@
 import { source } from "@/lib/source";
 import { createFromSource } from "fumadocs-core/search/server";
+import { createTokenizer } from "@orama/tokenizers/japanese";
 
-export const { GET } = createFromSource(source);
+export const { GET } = createFromSource(source, {
+  components: {
+    tokenizer: createTokenizer(),
+  },
+  search: {
+    threshold: 0,
+    tolerance: 0,
+  },
+});

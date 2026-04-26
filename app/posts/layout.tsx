@@ -1,12 +1,17 @@
-import { DocsLayout } from 'fumadocs-ui/layouts/docs';
-import type { ReactNode } from 'react';
-import { baseOptions } from '../layout.config';
-import { source } from '../../lib/source';
+import { HomeLayout } from "fumadocs-ui/layouts/home";
+import { baseOptions } from "@/lib/layout.shared";
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default function Layout({
+  children,
+  modal,
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}) {
   return (
-    <DocsLayout tree={source.pageTree} {...baseOptions}>
+    <HomeLayout {...baseOptions()}>
       {children}
-    </DocsLayout>
+      {modal}
+    </HomeLayout>
   );
 }

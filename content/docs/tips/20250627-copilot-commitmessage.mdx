@@ -6,23 +6,25 @@ full: false
 ---
 
 ## GitHub Copilot のコミットメッセージ生成を指示する
+
 会社でGitHub Copilotなどを使用していないためポートフォリオ用のプロジェクトで本格的に使用してみたところ、メッセージが英語で生成されてしまい、
 コミットメッセージのフォーマットも整っていなかったため、GitHub Copilot にコミットメッセージの生成を指示する方法を調べてみました。
 
 ### 指定方法
+
 vscodeではsettings.jsonに以下のように記述することで、GitHub Copilot にコミットメッセージの生成を指示できます。
 
 ```jsonc
 {
-    "github.copilot.chat.commitMessageGeneration.instructions": [
-        {
-            "text": "文章での指示"
-        },
-        {
-            "file": "指示が書かれているファイルのパス"
-        },
-       // ... 上記を複数指定可能
-    ]
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "文章での指示",
+    },
+    {
+      "file": "指示が書かれているファイルのパス",
+    },
+    // ... 上記を複数指定可能
+  ],
 }
 ```
 
@@ -38,18 +40,19 @@ structure
 
 今回設定したルールは以下になります。
 こちらの2つ目のルールは[okineadevさんのGist](https://gist.github.com/okineadev/8a3f392a93ae50e8d523e4ba7f9f9ac3)に掲載されています。
-```jsonc
+
+````jsonc
 {
-    "github.copilot.chat.commitMessageGeneration.instructions": [
-        {
-            "text": "Make sure you write your commit message in Japanese."
-        },
-        {
-            "text": "Follow the Conventional Commits format strictly for commit messages. Use the structure below:\n\n```\n<type>[optional scope]: <gitmoji> <description>\n\n[optional body]\n```\n\nGuidelines:\n\n1. **Type and Scope**: Choose an appropriate type (e.g., `feat`, `fix`) and optional scope to describe the affected module or feature.\n\n2. **Gitmoji**: Include a relevant `gitmoji` that best represents the nature of the change.\n\n3. **Description**: Write a concise, informative description in the header; use backticks if referencing code or specific terms.\n\n4. **Body**: For additional details, use a well-structured body section:\n   - Use bullet points (`*`) for clarity.\n   - Clearly describe the motivation, context, or technical details behind the change, if applicable.\n\nCommit messages should be clear, informative, and professional, aiding readability and project tracking."
-        },
-    ]
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "Make sure you write your commit message in Japanese.",
+    },
+    {
+      "text": "Follow the Conventional Commits format strictly for commit messages. Use the structure below:\n\n```\n<type>[optional scope]: <gitmoji> <description>\n\n[optional body]\n```\n\nGuidelines:\n\n1. **Type and Scope**: Choose an appropriate type (e.g., `feat`, `fix`) and optional scope to describe the affected module or feature.\n\n2. **Gitmoji**: Include a relevant `gitmoji` that best represents the nature of the change.\n\n3. **Description**: Write a concise, informative description in the header; use backticks if referencing code or specific terms.\n\n4. **Body**: For additional details, use a well-structured body section:\n   - Use bullet points (`*`) for clarity.\n   - Clearly describe the motivation, context, or technical details behind the change, if applicable.\n\nCommit messages should be clear, informative, and professional, aiding readability and project tracking.",
+    },
+  ],
 }
-```
+````
 
 そして生成されたコミットメッセージは以下のようになります。
 
@@ -61,30 +64,30 @@ feat: ✨ CleanArchitectureのフォルダ構成を作成
 
 しっかりとルールに従って、日本語化+Gitmoji+Conventional Commitsのフォーマットに従ったコミットメッセージが生成されました。
 
-
 ## Conventional Commitsとは？
+
 私は今まで知らなかったのですが、[Conventional Commits](https://www.conventionalcommits.org/)はコミットメッセージのための軽量な規約であるらしいです。
 この規則に従いコミットメッセージのテンプレートを生成してくれるツールもあるようです。
 
 - [meteor](https://github.com/stefanlogue/meteor?tab=readme-ov-file)
 
 ### Conventional Commitの仕様書をCopilotに指示する
+
 今回は./.docs/conventional-commits.mdというファイルを作成し、以下の内容を記述しました。
 
 ```jsonc
 {
-    "github.copilot.chat.commitMessageGeneration.instructions": [
-        {
-            "file": ".docs/conventional-commits.md"
-        },
-    ]
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "file": ".docs/conventional-commits.md",
+    },
+  ],
 }
 ```
 
 <details>
 
-<summary>conventional-commits.mdの内容</summary>
-# Conventional Commits Usage Guide
+<summary>conventional-commits.mdの内容</summary># Conventional Commits Usage Guide
 
 > 📘 This document includes material from the [Conventional Commits v1.0.0 Specification](https://www.conventionalcommits.org/en/v1.0.0/), licensed under [Creative Commons Attribution 3.0 International (CC BY 3.0)](https://creativecommons.org/licenses/by/3.0/).  
 > Copyright © The Conventional Commits Specification Authors.
@@ -182,7 +185,6 @@ You may define and use additional types if needed.
 
 </details>
 
-
 上記の内容を指示することで、よりCopilotはConventional Commitsのフォーマットに従ったコミットメッセージを生成することができます
 
 ```text
@@ -193,10 +195,11 @@ feat(docs): ✨ ER図とセッション管理フロー図を更新
 ```
 
 先ほどのこのコミットメッセージよりも`<docs>`などをしっかりと指定してくれています。
+
 > `<docs>`のdocsフォルダ内部のファイルを変更したので指定してくれているのだと思います。
 
-
 ##### まとめ
+
 今回はGitHub Copilot を使ってコミットメッセージを生成する際に、特定のフォーマット・内容・日本語などを指定する方法を紹介しました。
 意外と頭の中ではどんな作業を行ったのかを把握していても、いざメッセージを書くとなると意外と筆(タイピング)が進まないことがありませんか？私はそうでした。
 とりあえず生成できること書き始める一歩目がとても楽になりました。
@@ -206,6 +209,7 @@ feat(docs): ✨ ER図とセッション管理フロー図を更新
 - [`commitlint`](https://github.com/conventional-changelog/commitlint)
 
 #### 参考
+
 https://zenn.dev/prog_hallelujah/articles/b57ddf2c6763ce
 https://gist.github.com/okineadev/8a3f392a93ae50e8d523e4ba7f9f9ac3
 https://www.conventionalcommits.org/ja/v1.0.0/

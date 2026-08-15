@@ -1,22 +1,24 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "baseBranches": ["renovate-pr"],
-  "recreateClosed": true,
-  "schedule": ["* * * * 0,6"],
-  "stabilityDays": 3,
+  "baseBranchPatterns": ["main"],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["* 3-8 * * 1"],
+  "minimumReleaseAge": "7 days",
   "ignoreUnstable": true,
-  "groupName": "all dependencies",
-  "groupSlug": "all",
-  "separateMajorMinor": false,
+  "prConcurrentLimit": 1,
+  "prHourlyLimit": 1,
   "packageRules": [
     {
       "matchUpdateTypes": ["patch", "minor"],
-      "automerge": true
+      "groupName": "weekly dependencies",
+      "groupSlug": "weekly-dependencies",
+      "automerge": false
     },
     {
       "matchUpdateTypes": ["major"],
-      "enabled": false
+      "dependencyDashboardApproval": true,
+      "automerge": false
     }
   ]
 }
